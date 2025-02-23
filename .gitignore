@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# Variables de entorno (si usas un archivo .env)
+.env
+
+# Logs
+logs
+*.log
+
+# Sistema operativo
+.DS_Store
+
+# Otros archivos de build
+dist/
+build/
