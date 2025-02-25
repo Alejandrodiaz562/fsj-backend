@@ -10,4 +10,9 @@ app.use(morgan('dev'))
 app.use(express.json());
 app.use(ProductsRoutes)
 
+// Servir archivos estáticos desde la carpeta donde está el frontend compilado
+app.use(express.static(path.join(__dirname, "dist")));
+
+
+
 export default app
