@@ -5,10 +5,6 @@ import { upload } from '../config/multer.js'
 
 const router = Router()
 
-// Capturar TODAS las rutas y devolver index.html
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "dist", "index.html"));
-  });
 
 router.get('/products', getProduct)
 
