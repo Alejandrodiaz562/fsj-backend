@@ -14,3 +14,5 @@ logs
 # Otros archivos de build
 dist/
 build/
+
+firebase2.json
