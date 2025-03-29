@@ -5,6 +5,10 @@ import { upload } from '../config/multer.js'
 
 const router = Router()
 
+router.get('/', (req, res) => {
+    res.send('API funcionando 🚀');
+  });
+
 
 router.get('/products', getProduct)
 
