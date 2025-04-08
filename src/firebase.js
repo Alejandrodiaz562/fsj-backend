@@ -1,23 +1,15 @@
 import admin from "firebase-admin";
-/*import { readFile } from "fs/promises";
+import fs from "fs";
+import "dotenv/config"; // Asegúrate de importar dotenv si usas un archivo .env
 
-const serviceAccount = JSON.parse(
-    await readFile(new URL("../firebase2.json", import.meta.url))
-  );
+const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+if (!serviceAccountPath) {
+  throw new Error("La variable de entorno GOOGLE_APPLICATION_CREDENTIALS no está definida.");
+}
 
-*/
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
 
-/*import dotenv from "dotenv";
-dotenv.config(); // Cargar variables de entorno desde .env
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(), // Usa GOOGLE_APPLICATION_CREDENTIALS
-});*/
-
-const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

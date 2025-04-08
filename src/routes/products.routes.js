@@ -16,6 +16,6 @@ router.post('/products', upload.array('photos', 12), createProduct)
 
 router.put('/products', updateProduct)
 
-router.delete('/products', deleteProduct)
+router.delete('/products/:id', deleteProduct)
 
 export default router

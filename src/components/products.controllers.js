@@ -75,7 +75,15 @@ export const updateProduct = (req, res) => {
 }
 
 
-export const deleteProduct = (req, res) => {
-    res.send("deleting products")
+export const deleteProduct = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await db.collection('products').doc(id).delete()
+        res.json({mensaje: 'Producto eliminado correctamente'})
+    } catch (error) {
+        console.error('Error al eliminar el producto:', error);
+        res.status(500).json({ mensaje: 'Error al eliminar el producto' });
+    }
 }
 
