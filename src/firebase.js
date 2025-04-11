@@ -7,7 +7,8 @@ const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 if (!serviceAccountPath) {
   throw new Error("La variable de entorno GOOGLE_APPLICATION_CREDENTIALS no está definida.");
 }
-
+console.log("Ruta a credenciales:", serviceAccountPath);
+console.log("¿El archivo existe?", fs.existsSync(serviceAccountPath));
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
 
 
