@@ -25,13 +25,15 @@ if (!credentialsJSON) {
 const db = admin.firestore();
 
 export default db;*/
+let db; // Declarar db fuera del bloque try...catch
 
 try {
   const serviceAccount = JSON.parse(credentialsJSON);
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
   });
-  const db = admin.firestore();
+  db = admin.firestore();
+  
 } catch (error) {
   console.error("Error al parsear las credenciales de Firebase:", error);
   throw new Error("Error al configurar Firebase.");
