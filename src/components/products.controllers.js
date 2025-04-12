@@ -57,7 +57,12 @@ export const createProduct = async (req, res) => {
         };
 
         const productRef = db.collection('products').doc();
-        await productRef.set(newProduct);
+        const id = productRef.id;
+        
+        await productRef.set({
+          ...newProduct,
+          id // ¡esto es lo que falta!
+        });
 
         res.json({
             message: 'Imagenes y datos subidos con éxito',
