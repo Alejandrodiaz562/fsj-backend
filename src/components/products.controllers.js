@@ -57,9 +57,7 @@ export const createProduct = async (req, res) => {
         };
 
         const productRef = db.collection('products').doc();
-        const id = productRef.id;
-
-        await productRef.set({ ...newProduct, id });
+        await productRef.set(newProduct);
 
         res.json({
             message: 'Imagenes y datos subidos con éxito',
@@ -79,21 +77,22 @@ export const updateProduct = (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     const { id } = req.params;
+
     console.log("Intentando eliminar producto con ID:", id);
-  
+
     try {
-      const productRef = db.collection('products').doc(id);
-      const doc = await productRef.get();
-  
-      if (!doc.exists) {
-        console.log("No se encontró el documento en Firestore.");
-        return res.status(404).json({ mensaje: 'Producto no encontrado' });
-      }
-  
-      await productRef.delete();
-      res.json({ mensaje: 'Producto eliminado correctamente' });
+        const productRef = db.collection('products').doc(id);
+        const doc = await productRef.get();
+
+        if (!doc.exists) {
+            console.log("No se encontró el documento en Firestore.");
+            return res.status(404).json({ mensaje: 'Producto no encontrado' });
+          }
+        await productRef.delete();
+        res.json({mensaje: 'Producto eliminado correctamente'})
     } catch (error) {
-      console.error('Error al eliminar el producto:', error);
-      res.status(500).json({ mensaje: 'Error al eliminar el producto' });
+        console.error('Error al eliminar el producto:', error);
+        res.status(500).json({ mensaje: 'Error al eliminar el producto' });
     }
 }
+
