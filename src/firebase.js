@@ -32,8 +32,9 @@ try {
     credential: admin.credential.cert(serviceAccount),
   });
   const db = admin.firestore();
-  export default db;
 } catch (error) {
   console.error("Error al parsear las credenciales de Firebase:", error);
   throw new Error("Error al configurar Firebase.");
 }
+
+export default db;
