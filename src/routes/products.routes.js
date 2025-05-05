@@ -14,7 +14,7 @@ router.get('/products', getProduct)
 
 router.post('/products', upload.array('photos', 12), createProduct)
 
-router.put('/products', updateProduct)
+router.put('/products/:id', updateProduct)
 
 router.delete('/products/:id', deleteProduct)
 

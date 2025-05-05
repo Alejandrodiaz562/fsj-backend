@@ -75,8 +75,10 @@ export const createProduct = async (req, res) => {
     
 }
 
-export const updateProduct = (req, res) => {
-    res.send("updating products")
+export const updateProduct = async (req, res) => {
+    const {id} = req.params
+    console.log('intentando editar el id ', id)
+    res.send(`intentando editar el id ${id}`)
 }
 
 
