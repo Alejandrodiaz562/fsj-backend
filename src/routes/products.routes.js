@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {getProduct, createProduct, updateProduct, deleteProduct} from '../components/products.controllers.js'
+import {getProducts, getProductById, createProduct, updateProduct, deleteProduct} from '../components/products.controllers.js'
 
 import { upload } from '../config/multer.js'
 
@@ -10,7 +10,9 @@ router.get('/', (req, res) => {
   });
 
 
-router.get('/products', getProduct)
+router.get('/products', getProducts)
+
+router.get('/products/:id', getProductById)
 
 router.post('/products', upload.array('photos', 12), createProduct)
 

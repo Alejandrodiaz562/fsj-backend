@@ -2,7 +2,8 @@ import cloudinary from '../config/cloudinary.js';
 import fs from 'fs'
 import db from "../firebase.js";
 
-export const getProduct = async (req, res) => {
+
+export const getProducts = async (req, res) => {
     try {
         // Obtener la colección 'products' de Firestore
         const snapshot = await db.collection('products').get();
@@ -22,6 +23,29 @@ export const getProduct = async (req, res) => {
     } catch (error) {
         console.error("Error al obtener los productos:", error);
         res.status(500).json({ error: "Error al obtener los productos" });
+    }
+}
+
+export const getProductById = async (req, res) => {
+    try {
+        const {id} = req.params
+
+        const docRef = db.collection('products').doc(id)
+        const docSnap = await docRef.get()
+
+        if (!docSnap.exists){
+            return res.status(404).json({
+                error: 'producto no encontrado'
+            })
+        }
+
+        res.status(200).json({
+            id: docSnap.id,
+            ...docSnap.data()
+        })
+    } catch (error) {
+        console.error("Error al obtener el producto:", error);
+        res.status(500).json({ error: "Error al obtener el producto" });
     }
 }
 
@@ -46,7 +70,7 @@ export const createProduct = async (req, res) => {
            // Eliminar la imagen local después de subirla
             fs.unlinkSync(file.path);
 
-        }
+        }   
 
         // Guardar en Firebase
         const newProduct = {
@@ -76,9 +100,47 @@ export const createProduct = async (req, res) => {
 }
 
 export const updateProduct = async (req, res) => {
-    const {id} = req.params
-    console.log('intentando editar el id ', id)
-    res.send(`intentando editar el id ${id}`)
+    try {
+        const {id} = req.params
+        const { price, description, images, category } = req.body
+
+        if (!id){
+            return res.status(400).json({message: 'ID faltante'})
+        }
+
+        const dataToUpdate = {};
+
+        if (price !== undefined) dataToUpdate.price = price;
+        if (description !== undefined) dataToUpdate.description = description
+        if (images !== undefined) dataToUpdate.images = images;
+        if (category !== undefined) dataToUpdate.category = category;
+
+        if (Object.keys(dataToUpdate).length === 0) {
+            return res.status(400).json({ message: "No hay datos para actualizar" });
+        }
+
+        //const productRef = doc(db, 'products', id)
+
+        //await updateDoc(productRef, data)
+
+        await db.collection('products').doc(id).update(dataToUpdate)
+
+        return res.status(200).json({
+            message: 'producto actualizado correctamente', 
+            id,
+            data: dataToUpdate
+        })
+
+
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'erroro al editar el producto',
+            error: error.message
+        })
+
+    }
 }
 
 
