@@ -108,45 +108,54 @@ export const updateProduct = async (req, res) => {
         return res.status(400).json({ message: "ID faltante" });
       }
   
-      // 1️⃣ imágenes antiguas (URLs)
-      let oldImages = [];
-      try {
-        oldImages = existingImages ? JSON.parse(existingImages) : [];
-      } catch {
-        oldImages = [];
+      const productRef = db.collection("products").doc(id);
+      const snapshot = await productRef.get();
+  
+      if (!snapshot.exists) {
+        return res.status(404).json({ message: "Producto no encontrado" });
       }
   
-      // 2️⃣ imágenes nuevas → subir a Cloudinary
-      const newImages = [];
+      const currentData = snapshot.data();
+      let finalImages = currentData.images || [];
   
+      // 🔹 Si el frontend manda existingImages → reemplaza
+      if (existingImages) {
+        try {
+          finalImages = JSON.parse(existingImages);
+        } catch {
+          finalImages = currentData.images || [];
+        }
+      }
+  
+      // 🔹 Si llegan archivos nuevos → subir y agregar
       if (req.files && req.files.length > 0) {
         for (const file of req.files) {
           const result = await cloudinary.uploader.upload(file.path, {
             folder: "Alejo",
           });
-          newImages.push(result.secure_url);
+          finalImages.push(result.secure_url);
           fs.unlinkSync(file.path);
         }
       }
   
-      // 3️⃣ unir todas las imágenes (SIEMPRE)
-      const finalImages = [...oldImages, ...newImages];
-  
-      const dataToUpdate = {
-        images: finalImages, // 👈 SIEMPRE
-      };
+      const dataToUpdate = {};
   
       if (price !== undefined) dataToUpdate.price = Number(price);
       if (description !== undefined) dataToUpdate.description = description;
       if (category !== undefined) dataToUpdate.category = category;
   
-      if (Object.keys(dataToUpdate).length === 0) {
-        return res.status(400).json({ message: "No hay datos para actualizar" });
+      // ⚠️ SOLO actualizar imágenes si hay algo válido
+      if (finalImages.length > 0) {
+        dataToUpdate.images = finalImages;
       }
   
-      await db.collection("products").doc(id).update(dataToUpdate);
+      if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ message: "Nada para actualizar" });
+      }
   
-      return res.status(200).json({
+      await productRef.update(dataToUpdate);
+  
+      res.status(200).json({
         message: "Producto actualizado correctamente",
         id,
         data: dataToUpdate,
