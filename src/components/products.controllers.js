@@ -109,32 +109,36 @@ export const updateProduct = async (req, res) => {
       }
   
       // 1️⃣ imágenes antiguas (URLs)
-      const oldImages = existingImages
-        ? JSON.parse(existingImages)
-        : [];
+      let oldImages = [];
+      try {
+        oldImages = existingImages ? JSON.parse(existingImages) : [];
+      } catch {
+        oldImages = [];
+      }
   
-      // 2️⃣ imágenes nuevas → SUBIR A CLOUDINARY
+      // 2️⃣ imágenes nuevas → subir a Cloudinary
       const newImages = [];
   
       if (req.files && req.files.length > 0) {
         for (const file of req.files) {
           const result = await cloudinary.uploader.upload(file.path, {
-            folder: 'Alejo'
+            folder: "Alejo",
           });
           newImages.push(result.secure_url);
           fs.unlinkSync(file.path);
         }
       }
   
-      // 3️⃣ unir todas las imágenes
+      // 3️⃣ unir todas las imágenes (SIEMPRE)
       const finalImages = [...oldImages, ...newImages];
   
-      const dataToUpdate = {};
+      const dataToUpdate = {
+        images: finalImages, // 👈 SIEMPRE
+      };
   
       if (price !== undefined) dataToUpdate.price = Number(price);
       if (description !== undefined) dataToUpdate.description = description;
       if (category !== undefined) dataToUpdate.category = category;
-      if (finalImages.length > 0) dataToUpdate.images = finalImages;
   
       if (Object.keys(dataToUpdate).length === 0) {
         return res.status(400).json({ message: "No hay datos para actualizar" });
@@ -145,17 +149,18 @@ export const updateProduct = async (req, res) => {
       return res.status(200).json({
         message: "Producto actualizado correctamente",
         id,
-        data: dataToUpdate
+        data: dataToUpdate,
       });
   
     } catch (error) {
       console.error(error);
       res.status(500).json({
         message: "Error al editar el producto",
-        error: error.message
+        error: error.message,
       });
     }
   };
+  
   
 
 
