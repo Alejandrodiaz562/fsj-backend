@@ -101,59 +101,62 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-        const {id} = req.params
-        const { price, description, existingImages, category } = req.body
-
-        if (!id){
-            return res.status(400).json({message: 'ID faltante'})
+      const { id } = req.params;
+      const { price, description, existingImages, category } = req.body;
+  
+      if (!id) {
+        return res.status(400).json({ message: "ID faltante" });
+      }
+  
+      // 1️⃣ imágenes antiguas (URLs)
+      const oldImages = existingImages
+        ? JSON.parse(existingImages)
+        : [];
+  
+      // 2️⃣ imágenes nuevas → SUBIR A CLOUDINARY
+      const newImages = [];
+  
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          const result = await cloudinary.uploader.upload(file.path, {
+            folder: 'Alejo'
+          });
+          newImages.push(result.secure_url);
+          fs.unlinkSync(file.path);
         }
-
-        // imágenes antiguas (vienen como JSON string)
-        const oldImages = existingImages
-            ? JSON.parse(existingImages)
-            : [];
-
-        const dataToUpdate = {};
-
-        // imágenes nuevas (subidas con multer + cloudinary)
-        const newImages = req.files
-            ? req.files.map(file => file.path)
-            : [];
-
-        const finalImages = [...oldImages, ...newImages];
-
-        if (price !== undefined) dataToUpdate.price = price;
-        if (description !== undefined) dataToUpdate.description = description
-        if (finalImages !== undefined) dataToUpdate.images = finalImages;
-        if (category !== undefined) dataToUpdate.category = category;
-
-        if (Object.keys(dataToUpdate).length === 0) {
-            return res.status(400).json({ message: "No hay datos para actualizar" });
-        }
-
-        //const productRef = doc(db, 'products', id)
-
-        //await updateDoc(productRef, data)
-
-        await db.collection('products').doc(id).update(dataToUpdate)
-
-        return res.status(200).json({
-            message: 'producto actualizado correctamente', 
-            id,
-            data: dataToUpdate
-        })
-
-
-        
+      }
+  
+      // 3️⃣ unir todas las imágenes
+      const finalImages = [...oldImages, ...newImages];
+  
+      const dataToUpdate = {};
+  
+      if (price !== undefined) dataToUpdate.price = Number(price);
+      if (description !== undefined) dataToUpdate.description = description;
+      if (category !== undefined) dataToUpdate.category = category;
+      if (finalImages.length > 0) dataToUpdate.images = finalImages;
+  
+      if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ message: "No hay datos para actualizar" });
+      }
+  
+      await db.collection("products").doc(id).update(dataToUpdate);
+  
+      return res.status(200).json({
+        message: "Producto actualizado correctamente",
+        id,
+        data: dataToUpdate
+      });
+  
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: 'erroro al editar el producto',
-            error: error.message
-        })
-
+      console.error(error);
+      res.status(500).json({
+        message: "Error al editar el producto",
+        error: error.message
+      });
     }
-}
+  };
+  
 
 
 export const deleteProduct = async (req, res) => {
