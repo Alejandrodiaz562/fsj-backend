@@ -102,17 +102,29 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const {id} = req.params
-        const { price, description, images, category } = req.body
+        const { price, description, existingImages, category } = req.body
 
         if (!id){
             return res.status(400).json({message: 'ID faltante'})
         }
 
+        // imágenes antiguas (vienen como JSON string)
+        const oldImages = existingImages
+            ? JSON.parse(existingImages)
+            : [];
+
         const dataToUpdate = {};
+
+        // imágenes nuevas (subidas con multer + cloudinary)
+        const newImages = req.files
+            ? req.files.map(file => file.path)
+            : [];
+
+        const finalImages = [...oldImages, ...newImages];
 
         if (price !== undefined) dataToUpdate.price = price;
         if (description !== undefined) dataToUpdate.description = description
-        if (images !== undefined) dataToUpdate.images = images;
+        if (finalImages !== undefined) dataToUpdate.images = finalImages;
         if (category !== undefined) dataToUpdate.category = category;
 
         if (Object.keys(dataToUpdate).length === 0) {
